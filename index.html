@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Screensaver</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #050505;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+            text-align: center;
+        }
+        .page.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        /* Time & Date Page Styling */
+        .time-display {
+            font-size: 7rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            text-shadow: 0 4px 20px rgba(255,255,255,0.1);
+        }
+        .date-display {
+            font-size: 2.5rem;
+            color: #aaaaaa;
+            margin-top: 10px;
+        }
+        /* Weather Page Styling */
+        .weather-temp {
+            font-size: 6rem;
+            font-weight: 600;
+        }
+        .weather-desc {
+            font-size: 2.5rem;
+            color: #4dabf7;
+            margin-top: 10px;
+            text-transform: capitalize;
+        }
+        /* Calendar Page Styling */
+        .calendar-title {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            color: #ff922b;
+        }
+        .event-list {
+            width: 100%;
+            max-width: 600px;
+            list-style: none;
+        }
+        .event-item {
+            font-size: 1.8rem;
+            padding: 15px 0;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+        }
+        .event-time {
+            color: #868e96;
+        }
+        /* News Page Styling */
+        .news-title {
+            font-size: 2.5rem;
+            color: #20c997;
+            margin-bottom: 20px;
+        }
+        .news-headline {
+            font-size: 2.2rem;
+            font-weight: 500;
+            line-height: 1.4;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- PAGE 1: TIME & DATE -->
+        <div class="page active" id="page-time">
+            <div class="time-display" id="clock">00:00</div>
+            <div class="date-display" id="date">Loading Date...</div>
+        </div>
+
+        <!-- PAGE 2: WEATHER -->
+        <div class="page" id="page-weather">
+            <div class="weather-temp" id="temp">12°C</div>
+            <div class="weather-desc" id="condition">Light Rain</div>
+        </div>
+
+        <!-- PAGE 3: CALENDAR -->
+        <div class="page" id="page-calendar">
+            <div class="calendar-title">Today's Schedule</div>
+            <ul class="event-list">
+                <li class="event-item">
+                    <span>Morning Walk</span>
+                    <span class="event-time">08:30</span>
+                </li>
+                <li class="event-item">
+                    <span>Bin Collection</span>
+                    <span class="event-time">10:00</span>
+                </li>
+                <li class="event-item">
+                    <span>Family Dinner</span>
+                    <span class="event-time">18:00</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- PAGE 4: LOCAL NEWS -->
+        <div class="page" id="page-news">
+            <div class="news-title">Local Headlines</div>
+            <div class="news-headline" id="headline">Liverpool eco-friendly transport initiative expands to new areas across the city.</div>
+        </div>
+    </div>
+
+    <script>
+        // 1. CLOCK & DATE LOGIC
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            
+            document.getElementById('clock').innerText = hours + ':' + minutes;
+
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            document.getElementById('date').innerText = now.toLocaleDateString('en-GB', options);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 2. PAGE ROTATION LOGIC
+        const pages = document.querySelectorAll('.page');
+        let currentPageIndex = 0;
+
+        function rotatePages() {
+            pages[currentPageIndex].classList.remove('active');
+            currentPageIndex = (currentPageIndex + 1) % pages.length;
+            pages[currentPageIndex].classList.add('active');
+        }
+        // Change pages every 8 seconds (8000 milliseconds)
+        setInterval(rotatePages, 8000);
+
+        // 3. OPTIONAL REAL DATA INTEGRATION (PLACEHOLDERS INCLUDED)
+        // If you want live weather later, you can fetch from an open API here.
+        // For Android 6 stability, local static updates keep the tablet running fast.
+    </script>
+</body>
+</html>
