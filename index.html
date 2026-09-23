@@ -6,13 +6,12 @@
     <title>Smart Home Screensaver Kiosk View</title>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --panel-bg: #1e293b;
-            --border-ui: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg-dark: #070a13;
+            --panel-bg: rgba(15, 23, 42, 0.55);
+            --border-ui: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #cbd5e1;
             --accent-blue: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.15);
         }
 
         * {
@@ -31,84 +30,113 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            position: relative;
         }
 
-        /* The Main Interactive Frame Layout */
+        /* --- BACKGROUND SCENE IMAGERY SYSTEM --- */
+        .scene-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.4) contrast(1.05);
+            z-index: 0;
+            transition: background-image 1.5s ease-in-out;
+        }
+
+        /* Dark overlay gradient to guarantee crisp text readability */
+        .scene-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(7, 10, 19, 0.4) 0%, rgba(7, 10, 19, 0.7) 100%);
+            z-index: 1;
+        }
+
+        /* Main Glassmorphic Panel Layout Container */
         .dashboard-frame {
-            width: 95vw;
-            height: 90vh;
-            max-width: 1024px;
-            max-height: 600px;
-            background-color: #111827;
+            width: 92vw;
+            height: 85vh;
+            max-width: 960px;
+            max-height: 540px;
+            background-color: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--border-ui);
-            border-radius: 16px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            z-index: 2;
         }
 
-        /* Top Framework Header Tabs */
+        /* Top Bar Interface Navigation */
         .dashboard-header {
-            background-color: var(--panel-bg);
+            background-color: rgba(0, 0, 0, 0.2);
             border-bottom: 1px solid var(--border-ui);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 24px;
-            height: 64px;
+            padding: 0 32px;
+            height: 70px;
         }
 
         .header-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--text-main);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: 0.5px;
         }
 
         .header-title::before {
             content: '';
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background-color: #10b981;
             border-radius: 50%;
-            box-shadow: 0 0 8px #10b981;
+            box-shadow: 0 0 10px #10b981;
         }
 
         .tabs-container {
             display: flex;
-            gap: 8px;
+            gap: 12px;
             height: 100%;
             align-items: center;
         }
 
         .tab-btn {
-            background: transparent;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             color: var(--text-muted);
-            padding: 8px 16px;
-            font-size: 0.9rem;
+            padding: 8px 18px;
+            font-size: 0.95rem;
             font-weight: 500;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.4s ease;
         }
 
         .tab-btn.active {
             background-color: var(--accent-blue);
             color: #ffffff;
-            box-shadow: 0 4px 12px var(--accent-glow);
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
         }
 
-        /* Main Workspace Display Content */
+        /* Viewport Display System Panels */
         .dashboard-viewport {
             flex: 1;
             position: relative;
-            background-color: #0b0f19;
-            padding: 40px;
+            padding: 40px 60px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -116,11 +144,10 @@
 
         .view-panel {
             position: absolute;
-            width: 85%;
-            max-width: 700px;
+            width: 90%;
             opacity: 0;
-            transform: scale(0.98);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            transform: scale(0.97) translateY(5px);
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
             pointer-events: none;
             display: flex;
             flex-direction: column;
@@ -130,51 +157,49 @@
 
         .view-panel.active {
             opacity: 1;
-            transform: scale(1);
+            transform: scale(1) translateY(0);
             pointer-events: auto;
         }
 
-        /* Widget Content Elements */
+        /* Widgets Typography & Styles */
         .large-clock {
-            font-size: 6.5rem;
+            font-size: 7.5rem;
             font-weight: 700;
-            letter-spacing: -2px;
+            letter-spacing: -3px;
             color: #ffffff;
             line-height: 1;
-            margin-bottom: 12px;
-            text-shadow: 0 4px 24px rgba(255,255,255,0.05);
+            margin-bottom: 16px;
         }
 
         .large-date {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: var(--text-muted);
             font-weight: 400;
         }
 
         .weather-value {
-            font-size: 5.5rem;
+            font-size: 6.5rem;
             font-weight: 700;
             color: #ffffff;
             line-height: 1;
         }
 
         .weather-label {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             color: #60a5fa;
-            margin-top: 8px;
+            margin-top: 14px;
             font-weight: 500;
         }
 
         .widget-title {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 600;
             margin-bottom: 24px;
             color: #f59e0b;
-            align-self: flex-start;
             width: 100%;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-ui);
+            padding-bottom: 10px;
         }
 
         .data-list {
@@ -187,9 +212,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            font-size: 1.4rem;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 1.6rem;
         }
 
         .data-row:last-child {
@@ -197,11 +222,11 @@
         }
 
         .row-time {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2px 10px;
-            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 4px 12px;
+            border-radius: 8px;
         }
 
         .news-box {
@@ -211,16 +236,16 @@
 
         .news-tag {
             color: #34d399;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .news-text {
-            font-size: 1.8rem;
-            line-height: 1.5;
+            font-size: 2.2rem;
+            line-height: 1.6;
             font-weight: 500;
             color: #f1f5f9;
         }
@@ -228,34 +253,38 @@
 </head>
 <body>
 
+    <!-- Smooth Ambient Photographic Background Layer Components -->
+    <div class="scene-bg" id="ambient-scene"></div>
+    <div class="scene-overlay"></div>
+
     <div class="dashboard-frame">
-        <!-- Dashboard Top Header Bar Container -->
+        <!-- Top Tab bar Architecture -->
         <header class="dashboard-header">
-            <div class="header-title">Smart Home Display</div>
+            <div class="header-title">Live Ambient Display</div>
             <div class="tabs-container">
-                <button class="tab-btn active" id="tab-0">Clock</button>
-                <button class="tab-btn" id="tab-1">Weather</button>
-                <button class="tab-btn" id="tab-2">Calendar</button>
-                <button class="tab-btn" id="tab-3">News</button>
+                <div class="tab-btn active" id="tab-0">Clock</div>
+                <div class="tab-btn" id="tab-1">Weather</div>
+                <div class="tab-btn" id="tab-2">Calendar</div>
+                <div class="tab-btn" id="tab-3">News</div>
             </div>
         </header>
 
-        <!-- Main Dynamic App Rendering Window Viewport -->
+        <!-- Main Display Views Layout -->
         <main class="dashboard-viewport">
             
-            <!-- PANEL 0: CLOCK -->
+            <!-- VIEW 0: CLOCK -->
             <div class="view-panel active" id="panel-0">
                 <div class="large-clock" id="live-time">00:00</div>
                 <div class="large-date" id="live-date">Loading...</div>
             </div>
 
-            <!-- PANEL 1: WEATHER -->
+            <!-- VIEW 1: WEATHER -->
             <div class="view-panel" id="panel-1">
                 <div class="weather-value">12°C</div>
                 <div class="weather-label">🌧️ Light Rain</div>
             </div>
 
-            <!-- PANEL 2: CALENDAR -->
+            <!-- VIEW 2: CALENDAR -->
             <div class="view-panel" id="panel-2">
                 <div class="widget-title">Today's Schedule</div>
                 <ul class="data-list">
@@ -274,7 +303,7 @@
                 </ul>
             </div>
 
-            <!-- PANEL 3: NEWS -->
+            <!-- VIEW 3: NEWS -->
             <div class="view-panel" id="panel-3">
                 <div class="news-box">
                     <div class="news-tag">Local Headlines</div>
@@ -286,41 +315,25 @@
     </div>
 
     <script>
-        // Real-time Clock Infrastructure Engine Logic
-        function runSystemClock() {
-            const timeObject = new Date();
-            let hh = timeObject.getHours();
-            let mm = timeObject.getMinutes();
-            hh = hh < 10 ? '0' + hh : hh;
-            mm = mm < 10 ? '0' + mm : mm;
-            
-            document.getElementById('live-time').innerText = hh + ':' + mm;
+        // High-Quality Photographic Scenes (Curated for Ambient Dashboards)
+        const sceneImages = [
+            "https://unsplash.com", // Cozy minimalist room
+            "https://unsplash.com", // Soft morning horizon sun
+            "https://unsplash.com", // Quiet cinematic coast
+            "https://unsplash.com"  // Deep moody misty woodland
+        ];
 
-            const formatOptions = { weekday: 'long', month: 'short', day: 'numeric' };
-            document.getElementById('live-date').innerText = timeObject.toLocaleDateString('en-GB', formatOptions);
-        }
-        setInterval(runSystemClock, 1000);
-        runSystemClock();
+Use code with caution.function updateSceneBackground(index) {document.getElementById('ambient-scene').style.backgroundImage = url('${sceneImages[index]}');}// Initialize first background image sceneupdateSceneBackground(0);// System Clock Interface Enginefunction runSystemClock() {const timeObject = new Date();let hh = timeObject.getHours();let mm = timeObject.getMinutes();hh = hh < 10 ? '0' + hh : hh;mm = mm < 10 ? '0' + mm : mm;document.getElementById('live-time').innerText = hh + ':' + mm;const formatOptions = { weekday: 'long', month: 'short', day: 'numeric' };document.getElementById('live-date').innerText = timeObject.toLocaleDateString('en-GB', formatOptions);}setInterval(runSystemClock, 1000);runSystemClock();// Sequential Carousel Rotation & Visual Backdrop Switcher Sync Engineconst totalPanels = 4;let activeIndex = 0;function runDashboardCycle() {document.getElementById(panel-${activeIndex}).classList.remove('active');document.getElementById(tab-${activeIndex}).classList.remove('active');activeIndex = (activeIndex + 1) % totalPanels;document.getElementById(panel-${activeIndex}).classList.add('active');document.getElementById(tab-${activeIndex}).classList.add('active');// Seamlessly swap background image scene to match the current screen view styleupdateSceneBackground(activeIndex);}// Flips view panels and background scenery every 8 secondssetInterval(runDashboardCycle, 8000);
+### 🎨 Visual Preview Inspiration
+For further UI inspiration, modern custom themes often model their layout hierarchies on clean, modular cards and atmospheric tones similar to these community ideas:
 
-        // High-Fidelity Active Tab Cycle Animation Engine
-        const totalPanels = 4;
-        let activeIndex = 0;
+<Carousel sectional=true image_lookup="smart home dashboard UI screensaver dark mode">
+  <Image srcId="1.2.4"/>
+  <Image srcId="1.2.7"/>
+  <Image srcId="1.2.1"/>
+  <Image srcId="1.2.8"/>
+</Carousel>
 
-        function runDashboardCycle() {
-            // Remove active states from previous elements
-            document.getElementById(`panel-${activeIndex}`).classList.remove('active');
-            document.getElementById(`tab-${activeIndex}`).classList.remove('active');
-
-            // Shift index pointer forwards
-            activeIndex = (activeIndex + 1) % totalPanels;
-
-            // Apply active styles to target panel index
-            document.getElementById(`panel-${activeIndex}`).classList.add('active');
-            document.getElementById(`tab-${activeIndex}`).classList.add('active');
-        }
-        
-        // Execution timer running sequential flips every 8 seconds
-        setInterval(runDashboardCycle, 8000);
-    </script>
-</body>
-</html>
+<FollowUp>
+Let me know if the photography backgrounds load correctly and blend smoothly behind your layout views on the tablet!
+</FollowUp>
